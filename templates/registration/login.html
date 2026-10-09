@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Sign in | RecordLink
+{% endblock %}
+
+{% block auth_content %}
+<div class="auth-page">
+  <div class="auth-panel">
+    <a class="brand auth-brand" href="{% url 'home' %}">
+      <span class="brand-mark">R</span>
+      <span>RecordLink</span>
+    </a>
+
+    <div class="auth-heading">
+      <span class="eyebrow">DATA QUALITY WORKSPACE</span>
+      <h1>Welcome back.</h1>
+      <p>Sign in to manage datasets and explore potential duplicate records.</p>
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger" role="alert">
+      The username or password is incorrect. Please try again.
+    </div>
+    {% endif %} {% if next %}
+    <div class="alert alert-info" role="status">
+      Please sign in to access that page.
+    </div>
+    {% endif %}
+
+    <form method="post" class="login-form">
+      {% csrf_token %}
+
+      <input type="hidden" name="next" value="{{ next|default:'' }}" />
+
+      <div class="mb-3">
+        <label class="form-label" for="id_username"> Username </label>
+
+        <input
+          class="form-control"
+          id="id_username"
+          name="username"
+          type="text"
+          autocomplete="username"
+          required
+          autofocus
+        />
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label" for="id_password"> Password </label>
+
+        <input
+          class="form-control"
+          id="id_password"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">
+        Sign in to RecordLink
+      </button>
+    </form>
+
+    <p class="auth-footnote">Secure access to your record-linkage workspace.</p>
+  </div>
+
+  <div class="auth-visual">
+    <div class="visual-content">
+      <span class="visual-tag">INTELLIGENT DATA MATCHING</span>
+
+      <h2>Better records.<br />More reliable data.</h2>
+
+      <p>
+        Identify potential duplicate records, compare matching evidence and
+        support informed review decisions.
+      </p>
+
+      <div class="visual-card">
+        <div class="visual-card-label">MATCHING EXAMPLE</div>
+
+        <div class="comparison-row">
+          <span>Amina Yusuf</span>
+          <span class="comparison-score">98%*</span>
+        </div>
+
+        <div class="comparison-row">
+          <span>Amina Y. Yusuf</span>
+          <span class="comparison-match">Potential match</span>
+        </div>
+
+        <div class="visual-card-note">
+          *Illustrative example only, not an actual model prediction.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

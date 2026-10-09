@@ -1,0 +1,122 @@
+{% extends "base.html" %} {% block title %}Dashboard | RecordLink{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <span class="eyebrow">OVERVIEW</span>
+    <h1>Dashboard</h1>
+    <p>Monitor your datasets and prepare for record-linkage analysis.</p>
+  </div>
+
+  <span class="workspace-badge">LOCAL WORKSPACE</span>
+</div>
+
+<div class="welcome-panel">
+  <div>
+    <span class="welcome-label">YOUR WORKSPACE</span>
+    <h2>Welcome, {{ request.user.username }}.</h2>
+    <p>
+      Your record-linkage workspace is ready. Dataset import and probabilistic
+      matching will become available in the next implementation phases.
+    </p>
+  </div>
+
+  <div class="welcome-symbol">R</div>
+</div>
+
+<div class="section-heading">
+  <div>
+    <h2>Dataset overview</h2>
+    <p>A summary of datasets registered in your workspace.</p>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <article class="stat-card">
+    <span class="stat-label">Total datasets</span>
+    <strong class="stat-value">{{ total_datasets }}</strong>
+    <span class="stat-description">Registered datasets</span>
+  </article>
+
+  <article class="stat-card">
+    <span class="stat-label">Ready datasets</span>
+    <strong class="stat-value">{{ ready_datasets }}</strong>
+    <span class="stat-description">Available for processing</span>
+  </article>
+
+  <article class="stat-card">
+    <span class="stat-label">Pending datasets</span>
+    <strong class="stat-value">{{ pending_datasets }}</strong>
+    <span class="stat-description">Awaiting processing</span>
+  </article>
+
+  <article class="stat-card">
+    <span class="stat-label">Imported records</span>
+    <strong class="stat-value">{{ total_records }}</strong>
+    <span class="stat-description">Across your datasets</span>
+  </article>
+</div>
+
+<div class="content-card">
+  <div class="section-heading">
+    <div>
+      <h2>Recent datasets</h2>
+      <p>Your latest registered datasets.</p>
+    </div>
+  </div>
+
+  {% if recent_datasets %}
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>Dataset</th>
+          <th>Source</th>
+          <th>Records</th>
+          <th>Status</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for dataset in recent_datasets %}
+        <tr>
+          <td>
+            <strong>{{ dataset.name }}</strong>
+          </td>
+          <td>{{ dataset.source_name }}</td>
+          <td>{{ dataset.record_count }}</td>
+          <td>
+            <span class="dataset-status status-{{ dataset.status }}">
+              {{ dataset.get_status_display }}
+            </span>
+          </td>
+          <td>{{ dataset.created_at|date:"d M Y" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">D</div>
+    <h3>No datasets yet</h3>
+    <p>
+      Once dataset management is implemented, you will be able to upload CSV
+      files and manage them here.
+    </p>
+  </div>
+  {% endif %}
+</div>
+
+<div class="content-card system-status">
+  <div>
+    <h3>Application foundation</h3>
+    <p>
+      Authentication, dashboard and database setup are the first stage of the
+      RecordLink implementation.
+    </p>
+  </div>
+
+  <span class="status-pill"> Foundation phase </span>
+</div>
+{% endblock %}
