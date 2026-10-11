@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Evaluate Job #{{ job.pk }} | RecordLink{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+  <div>
+    <span class="eyebrow">REFERENCE LABELS</span>
+    <h1>Evaluate job #{{ job.pk }}</h1>
+    <p>{{ job.left_dataset.name }} compared with {{ job.right_dataset.name }}</p>
+  </div>
+  <a href="{% url 'matching:evaluation_list' %}" class="btn btn-outline-secondary">All jobs</a>
+</div>
+
+<div class="alert alert-info">
+  Metrics use only candidate pairs with an independently supplied reference label. A <strong>likely match</strong> is counted as a predicted match; <strong>review</strong> and <strong>non-match</strong> are counted as not predicted matches. These metrics describe the labelled candidate sample and do not establish recall for pairs the blocking process did not generate.
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Labelled pairs</div><div class="fs-3 fw-semibold">{{ metrics.labelled_pairs }}</div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">True positives</div><div class="fs-3 fw-semibold">{{ metrics.true_positives }}</div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">False positives</div><div class="fs-3 fw-semibold">{{ metrics.false_positives }}</div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">False negatives</div><div class="fs-3 fw-semibold">{{ metrics.false_negatives }}</div></div></div></div>
+  <div class="col-6 col-xl-4"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Precision</div><div class="fs-4 fw-semibold">{% if metrics.precision != None %}{{ metrics.precision|floatformat:3 }}{% else %}Unavailable{% endif %}</div></div></div></div>
+  <div class="col-6 col-xl-4"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Recall</div><div class="fs-4 fw-semibold">{% if metrics.recall != None %}{{ metrics.recall|floatformat:3 }}{% else %}Unavailable{% endif %}</div></div></div></div>
+  <div class="col-12 col-xl-4"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">F1 score</div><div class="fs-4 fw-semibold">{% if metrics.f1_score != None %}{{ metrics.f1_score|floatformat:3 }}{% else %}Unavailable{% endif %}</div></div></div></div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    <h2 class="h5 mb-3">Candidate reference labels</h2>
+    {% if page_obj.object_list %}
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead><tr><th>Pair</th><th>Records</th><th>Score</th><th>Prediction</th><th>Reference label</th></tr></thead>
+          <tbody>
+            {% for pair in page_obj %}
+              <tr>
+                <td><a href="{% url 'matching:candidate_detail' job.pk pair.pk %}">#{{ pair.pk }}</a></td>
+                <td>
+                  {{ pair.record_a.dataset.name }} · #{{ pair.record_a_id }} · Row {{ pair.record_a.source_row_number }}<br />
+                  {{ pair.record_b.dataset.name }} · #{{ pair.record_b_id }} · Row {{ pair.record_b.source_row_number }}
+                </td>
+                <td>{{ pair.score|floatformat:3 }}</td>
+                <td>{{ pair.get_classification_display }}</td>
+                <td>
+                  {% if pair.reference_label %}
+                    <div class="small text-muted mb-1">Current: {{ pair.reference_label.get_label_display }} · {{ pair.reference_label.labelled_by.get_username }}</div>
+                  {% endif %}
+                  <form method="post" action="{% url 'matching:save_reference_label' job.pk pair.pk %}" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <select name="label" class="form-select form-select-sm" aria-label="Reference label for pair {{ pair.pk }}">
+                      <option value="">Choose label</option>
+                      <option value="true_match" {% if pair.reference_label.label == "true_match" %}selected{% endif %}>True match</option>
+                      <option value="true_non_match" {% if pair.reference_label.label == "true_non_match" %}selected{% endif %}>True non-match</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if page_obj.has_other_pages %}
+        <nav aria-label="Evaluation candidate pages" class="mt-3">
+          <ul class="pagination mb-0">
+            {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>{% endif %}
+            <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+            {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>{% endif %}
+          </ul>
+        </nav>
+      {% endif %}
+    {% else %}
+      <div class="text-center py-5">
+        <h3 class="h6">No candidate pairs to label</h3>
+        <p class="text-muted mb-0">This job did not generate any candidate pairs.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

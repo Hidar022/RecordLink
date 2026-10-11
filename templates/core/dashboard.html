@@ -4,7 +4,7 @@
   <div>
     <span class="eyebrow">OVERVIEW</span>
     <h1>Dashboard</h1>
-    <p>Monitor your datasets and prepare for record-linkage analysis.</p>
+    <p>Monitor datasets, matching jobs, and human review activity.</p>
   </div>
 
   <div class="d-flex align-items-center gap-3 flex-wrap">
@@ -21,8 +21,8 @@
     <span class="welcome-label">YOUR WORKSPACE</span>
     <h2>Welcome, {{ request.user.username }}.</h2>
     <p>
-      Your record-linkage workspace is ready. Dataset import and probabilistic
-      matching will become available in the next implementation phases.
+      Review generated candidate pairs, record independent reference labels,
+      and inspect matching results for your datasets.
     </p>
   </div>
 
@@ -31,8 +31,8 @@
 
 <div class="section-heading">
   <div>
-    <h2>Dataset overview</h2>
-    <p>A summary of datasets registered in your workspace.</p>
+    <h2>Workspace overview</h2>
+    <p>Dataset and matching activity in your workspace.</p>
   </div>
 </div>
 
@@ -59,6 +59,30 @@
     <span class="stat-label">Imported records</span>
     <strong class="stat-value">{{ total_records }}</strong>
     <span class="stat-description">Across your datasets</span>
+  </article>
+
+  <article class="stat-card">
+    <span class="stat-label">Matching jobs</span>
+    <strong class="stat-value">{{ total_jobs }}</strong>
+    <span class="stat-description">Created in your workspace</span>
+  </article>
+
+  <article class="stat-card">
+    <span class="stat-label">Completed jobs</span>
+    <strong class="stat-value">{{ completed_jobs }}</strong>
+    <span class="stat-description">Finished successfully</span>
+  </article>
+
+  <article class="stat-card">
+    <span class="stat-label">Pending review pairs</span>
+    <strong class="stat-value">{{ pending_review_pairs }}</strong>
+    <span class="stat-description">Awaiting a human decision</span>
+  </article>
+
+  <article class="stat-card">
+    <span class="stat-label">Reviewed pairs</span>
+    <strong class="stat-value">{{ reviewed_pairs }}</strong>
+    <span class="stat-description">With a recorded human decision</span>
   </article>
 </div>
 
@@ -120,13 +144,15 @@
 
 <div class="content-card system-status">
   <div>
-    <h3>Application foundation</h3>
+    <h3>Scoring and evaluation</h3>
     <p>
-      Authentication, dashboard and database setup are the first stage of the
-      RecordLink implementation.
+      Matching scores are weighted similarity heuristics, not calibrated
+      probabilities. Evaluation metrics use only independently labelled
+      candidate pairs and do not measure recall over pairs blocking did not
+      generate.
     </p>
   </div>
 
-  <span class="status-pill"> Foundation phase </span>
+  <span class="status-pill">Reference labels</span>
 </div>
 {% endblock %}

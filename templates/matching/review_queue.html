@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Review Queue | RecordLink{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+  <div>
+    <span class="eyebrow">HUMAN REVIEW</span>
+    <h1>Review queue</h1>
+    <p>Inspect generated candidate pairs and record an independent decision.</p>
+  </div>
+  <a href="{% url 'matching:job_list' %}" class="btn btn-outline-secondary">Matching jobs</a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label for="job-filter" class="form-label">Matching job</label>
+        <select id="job-filter" name="job" class="form-select">
+          <option value="">All your jobs</option>
+          {% for job in jobs %}
+            <option value="{{ job.pk }}" {% if selected_job == job.pk|stringformat:"s" %}selected{% endif %}>
+              #{{ job.pk }} · {{ job.left_dataset.name }} / {{ job.right_dataset.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="classification-filter" class="form-label">Classification</label>
+        <select id="classification-filter" name="classification" class="form-select">
+          <option value="">All classifications</option>
+          {% for value, label in classification_choices %}
+            <option value="{{ value }}" {% if selected_classification == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="review-status-filter" class="form-label">Review status</label>
+        <select id="review-status-filter" name="review_status" class="form-select">
+          {% for value, label in review_status_choices %}
+            <option value="{{ value }}" {% if selected_review_status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{% url 'matching:review_queue' %}" class="btn btn-outline-secondary">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    {% if page_obj.object_list %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Candidate pair</th>
+              <th>Score</th>
+              <th>Algorithmic classification</th>
+              <th>Review status</th>
+              <th>Comparison evidence</th>
+              <th>Decision</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pair in page_obj %}
+              <tr>
+                <td>
+                  <div><a href="{% url 'matching:candidate_detail' pair.job_id pair.pk %}">Pair #{{ pair.pk }}</a> · Job #{{ pair.job_id }}</div>
+                  <small class="text-muted">
+                    {{ pair.record_a.dataset.name }} · Record #{{ pair.record_a_id }} · Row {{ pair.record_a.source_row_number }}
+                  </small><br />
+                  <small class="text-muted">
+                    {{ pair.record_b.dataset.name }} · Record #{{ pair.record_b_id }} · Row {{ pair.record_b.source_row_number }}
+                  </small>
+                </td>
+                <td>{{ pair.score|floatformat:3 }}</td>
+                <td>{{ pair.get_classification_display }}</td>
+                <td>
+                  {{ pair.get_review_status_display }}
+                  {% if pair.reviewed_at %}
+                    <br /><small class="text-muted">{{ pair.reviewed_by.get_username }} · {{ pair.reviewed_at|date:"M j, Y H:i" }}</small>
+                  {% endif %}
+                </td>
+                <td>
+                  <details>
+                    <summary>View fields</summary>
+                    <div class="small mt-2">
+                      {% for field, detail in pair.comparison_details.items %}
+                        <div class="mb-2">
+                          <strong>{{ field }}</strong><br />
+                          {{ detail.value_a|default:"—" }} ↔ {{ detail.value_b|default:"—" }}<br />
+                          {% if detail.similarity != None %}
+                            Similarity: {{ detail.similarity|floatformat:2 }}
+                          {% else %}
+                            {{ detail.note|default:"Not compared" }}
+                          {% endif %}
+                        </div>
+                      {% empty %}
+                        No comparison evidence was stored.
+                      {% endfor %}
+                    </div>
+                  </details>
+                </td>
+                <td>
+                  <form method="post" action="{% url 'matching:review_decision' pair.pk %}" class="d-grid gap-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="return_to" value="{{ request.get_full_path }}" />
+                    <button class="btn btn-sm btn-success" name="decision" value="confirmed_match" type="submit">Confirm match</button>
+                    <button class="btn btn-sm btn-outline-danger" name="decision" value="confirmed_non_match" type="submit">Confirm non-match</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if page_obj.has_other_pages %}
+        <nav aria-label="Review queue pages" class="mt-3">
+          <ul class="pagination mb-0">
+            {% if page_obj.has_previous %}
+              <li class="page-item"><a class="page-link" href="?job={{ selected_job }}&classification={{ selected_classification }}&review_status={{ selected_review_status }}&page={{ page_obj.previous_page_number }}">Previous</a></li>
+            {% endif %}
+            <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+            {% if page_obj.has_next %}
+              <li class="page-item"><a class="page-link" href="?job={{ selected_job }}&classification={{ selected_classification }}&review_status={{ selected_review_status }}&page={{ page_obj.next_page_number }}">Next</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% endif %}
+    {% else %}
+      <div class="text-center py-5">
+        <h2 class="h5">No candidate pairs in this view</h2>
+        <p class="text-muted mb-0">Try another filter or run a matching job to generate candidates.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

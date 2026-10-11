@@ -1,0 +1,6 @@
+hospital_record_id,national_id,first_name,middle_name,last_name,date_of_birth,sex,phone,email
+HB101,NAT1001,Amina,Yusuf,Abubakar,1995-04-12,Female,08012345678,amina.abubakar@example.com
+HB102,NAT1002,Musa,I.,Bello,1988-09-20,Male,08022223333,musa.bello@example.com
+HB103,NAT2099,Fatima,Maryam,Usman,2000-01-15,Female,08044445555,fatima.usman@example.com
+HB104,NAT2004,Grace,Chioma,Okafor,1992-11-03,Female,08066667777,grace.okafor@example.com
+HB105,NAT2005,Zainab,Maryam,Garba,1997-06-08,Female,08077778888,zainab.garba@example.com

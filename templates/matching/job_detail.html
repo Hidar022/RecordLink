@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Matching Job #{{ job.pk }} | RecordLink{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1 class="h3 mb-1">Matching job #{{ job.pk }}</h1>
+    <p class="text-muted mb-1">
+      {{ job.left_dataset.name }} compared with {{ job.right_dataset.name }}
+    </p>
+    <span class="badge text-bg-secondary">{{ job.get_status_display }}</span>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{% url 'matching:evaluation_detail' job.pk %}" class="btn btn-outline-primary">Evaluation</a>
+    <a href="{% url 'matching:export_job_csv' job.pk %}" class="btn btn-outline-primary">Download CSV</a>
+    <a href="{% url 'matching:job_list' %}" class="btn btn-outline-secondary">All jobs</a>
+  </div>
+</div>
+
+{% if job.status == "failed" %}
+  <div class="alert alert-danger">
+    <strong>Job failed.</strong>
+    {{ job.error_message|default:"No error details were recorded." }}
+  </div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small">Candidates evaluated</div>
+        <div class="fs-3 fw-semibold">{{ job.total_candidates }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small">Likely matches</div>
+        <div class="fs-3 fw-semibold">{{ job.likely_matches }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small">Needs review</div>
+        <div class="fs-3 fw-semibold">{{ job.review_candidates }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small">Non-matches</div>
+        <div class="fs-3 fw-semibold">{{ job.non_matches }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h5 mb-0">Candidate pairs</h2>
+      <form method="get" class="d-flex gap-2">
+        <select name="classification" class="form-select form-select-sm">
+          <option value="">All classifications</option>
+          {% for value, label in classification_choices %}
+            <option
+              value="{{ value }}"
+              {% if selected_classification == value %}selected{% endif %}
+            >
+              {{ label }}
+            </option>
+          {% endfor %}
+        </select>
+        <button class="btn btn-sm btn-outline-primary" type="submit">
+          Filter
+        </button>
+      </form>
+    </div>
+
+    {% if page_obj.object_list %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>First record</th>
+              <th>Second record</th>
+              <th>Similarity score</th>
+              <th>Classification</th>
+              <th>Comparison evidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pair in page_obj %}
+              <tr>
+                <td>
+                  <div class="fw-semibold"><a href="{% url 'matching:candidate_detail' job.pk pair.pk %}">Record #{{ pair.record_a_id }}</a></div>
+                  <small class="text-muted">
+                    {{ pair.record_a.dataset.name }} · Row
+                    {{ pair.record_a.source_row_number }}
+                  </small>
+                </td>
+                <td>
+                  <div class="fw-semibold"><a href="{% url 'matching:candidate_detail' job.pk pair.pk %}">Record #{{ pair.record_b_id }}</a></div>
+                  <small class="text-muted">
+                    {{ pair.record_b.dataset.name }} · Row
+                    {{ pair.record_b.source_row_number }}
+                  </small>
+                </td>
+                <td>{{ pair.score|floatformat:3 }}</td>
+                <td>{{ pair.get_classification_display }}</td>
+                <td>
+                  <details>
+                    <summary>View fields</summary>
+                    <div class="small mt-2">
+                      {% for field, detail in pair.comparison_details.items %}
+                        <div class="mb-2">
+                          <strong>{{ field }}</strong>:
+                          {{ detail.value_a|default:"—" }}
+                          ↔
+                          {{ detail.value_b|default:"—" }}
+                          <br />
+                          Similarity:
+                          {% if detail.similarity != None %}
+                            {{ detail.similarity|floatformat:2 }}
+                          {% else %}
+                            Not compared
+                          {% endif %}
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </details>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" class="text-center py-4 text-muted">
+                  No candidate pairs match this filter.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <nav aria-label="Candidate pages">
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}&classification={{ selected_classification }}">
+                Previous
+              </a>
+            </li>
+          {% endif %}
+          <li class="page-item disabled">
+            <span class="page-link">
+              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+          </li>
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}&classification={{ selected_classification }}">
+                Next
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% else %}
+      <p class="text-muted mb-0">
+        No candidate pairs were generated for this job.
+      </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

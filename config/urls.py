@@ -36,5 +36,7 @@ urlpatterns = [
     ),
 
     path("datasets/", include("datasets.urls")),
+    path("matching/", include("matching.urls")),
+    path("audit/", include("audit.urls")),
     path("", include("core.urls")),
 ]

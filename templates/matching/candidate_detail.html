@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Candidate Pair #{{ pair.pk }} | RecordLink{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+  <div>
+    <span class="eyebrow">JOB #{{ job.pk }}</span>
+    <h1>Candidate pair #{{ pair.pk }}</h1>
+    <p>{{ job.left_dataset.name }} compared with {{ job.right_dataset.name }}</p>
+  </div>
+  <a href="{% url 'matching:review_queue' %}" class="btn btn-outline-secondary">Review queue</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h2 class="h6">Record A · #{{ pair.record_a_id }}</h2>
+        <p class="mb-1"><strong>{{ pair.record_a.dataset.name }}</strong></p>
+        <p class="text-muted mb-0">Source row {{ pair.record_a.source_row_number }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h2 class="h6">Record B · #{{ pair.record_b_id }}</h2>
+        <p class="mb-1"><strong>{{ pair.record_b.dataset.name }}</strong></p>
+        <p class="text-muted mb-0">Source row {{ pair.record_b.source_row_number }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="h5">Comparison</h2>
+    <dl class="row mb-0">
+      <dt class="col-sm-3">Similarity score</dt><dd class="col-sm-9">{{ pair.score|floatformat:3 }}</dd>
+      <dt class="col-sm-3">Algorithmic classification</dt><dd class="col-sm-9">{{ pair.get_classification_display }}</dd>
+      <dt class="col-sm-3">Human review status</dt>
+      <dd class="col-sm-9">
+        {{ pair.get_review_status_display }}
+        {% if pair.reviewed_at %} · {{ pair.reviewed_by.get_username }} · {{ pair.reviewed_at|date:"M j, Y H:i" }}{% endif %}
+      </dd>
+    </dl>
+
+    <div class="table-responsive mt-3">
+      <table class="table align-middle">
+        <thead><tr><th>Field</th><th>Record A</th><th>Record B</th><th>Similarity</th></tr></thead>
+        <tbody>
+          {% for field, detail in pair.comparison_details.items %}
+            <tr>
+              <th>{{ field }}</th>
+              <td>{{ detail.value_a|default:"—" }}</td>
+              <td>{{ detail.value_b|default:"—" }}</td>
+              <td>
+                {% if detail.similarity != None %}
+                  {{ detail.similarity|floatformat:2 }}
+                {% else %}
+                  {{ detail.note|default:"Missing value; excluded from score" }}
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4" class="text-muted">No comparison evidence was stored.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <form method="post" action="{% url 'matching:review_decision' pair.pk %}" class="d-flex flex-wrap gap-2 mt-3">
+      {% csrf_token %}
+      {% url 'matching:candidate_detail' job.pk pair.pk as detail_url %}
+      <input type="hidden" name="return_to" value="{{ detail_url }}" />
+      <button class="btn btn-success" type="submit" name="decision" value="confirmed_match">Confirm match</button>
+      <button class="btn btn-outline-danger" type="submit" name="decision" value="confirmed_non_match">Confirm non-match</button>
+      <a class="btn btn-outline-secondary" href="{% url 'matching:evaluation_detail' job.pk %}">Reference labels and evaluation</a>
+    </form>
+  </div>
+</div>
+
+<div class="alert alert-light border">
+  The score is a weighted similarity heuristic, not a calibrated probability. A human review decision does not modify the algorithmic classification.
+</div>
+{% endblock %}

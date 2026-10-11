@@ -38,15 +38,21 @@
             <span>Datasets</span>
         </a>
 
-        <div class="nav-item-link disabled-link">
-          Matching jobs
-          <span class="coming-soon">Phase 3</span>
-        </div>
+        <a class="nav-item-link" href="{% url 'matching:job_list' %}">
+          <span>Matching jobs</span>
+        </a>
 
-        <div class="nav-item-link disabled-link">
-          Review queue
-          <span class="coming-soon">Phase 4</span>
-        </div>
+        <a class="nav-item-link" href="{% url 'matching:review_queue' %}">
+          <span>Review queue</span>
+        </a>
+
+        <a class="nav-item-link" href="{% url 'matching:evaluation_list' %}">
+          <span>Evaluation</span>
+        </a>
+
+        <a class="nav-item-link" href="{% url 'audit:history' %}">
+          <span>Audit history</span>
+        </a>
 
         <div class="sidebar-footer">
           <span class="user-avatar">

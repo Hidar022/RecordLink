@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}New Matching Job | RecordLink{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h1 class="h3 mb-1">Create matching job</h1>
+  <p class="text-muted">
+    Select two ready datasets and configure the initial score thresholds.
+  </p>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-4">
+    {% if datasets|length >= 2 %}
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label for="left_dataset" class="form-label">First dataset</label>
+          <select
+            name="left_dataset"
+            id="left_dataset"
+            class="form-select"
+            required
+          >
+            <option value="">Select a dataset</option>
+            {% for dataset in datasets %}
+              <option value="{{ dataset.pk }}">
+                {{ dataset.name }} — {{ dataset.record_count }} records
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="right_dataset" class="form-label">Second dataset</label>
+          <select
+            name="right_dataset"
+            id="right_dataset"
+            class="form-select"
+            required
+          >
+            <option value="">Select a dataset</option>
+            {% for dataset in datasets %}
+              <option value="{{ dataset.pk }}">
+                {{ dataset.name }} — {{ dataset.record_count }} records
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="match_threshold" class="form-label">
+              Likely-match threshold
+            </label>
+            <input
+              type="number"
+              name="match_threshold"
+              id="match_threshold"
+              class="form-control"
+              min="0.01"
+              max="1"
+              step="0.01"
+              value="0.82"
+              required
+            />
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="review_threshold" class="form-label">
+              Review threshold
+            </label>
+            <input
+              type="number"
+              name="review_threshold"
+              id="review_threshold"
+              class="form-control"
+              min="0"
+              max="0.99"
+              step="0.01"
+              value="0.55"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          Scores range from 0 to 1. Scores at or above the likely-match
+          threshold are classified as likely matches. Scores between the
+          thresholds require review. Lower scores are classified as
+          non-matches among the generated candidates.
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          Run matching
+        </button>
+        <a href="{% url 'matching:job_list' %}" class="btn btn-outline-secondary">
+          Cancel
+        </a>
+      </form>
+    {% else %}
+      <p class="mb-3">
+        You need at least two ready datasets before running a matching job.
+      </p>
+      <a href="{% url 'datasets:dataset_list' %}" class="btn btn-primary">
+        View datasets
+      </a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

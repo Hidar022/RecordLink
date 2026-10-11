@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Matching Jobs | RecordLink{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 mb-1">Matching jobs</h1>
+    <p class="text-muted mb-0">
+      Compare records across datasets and identify possible duplicates.
+    </p>
+  </div>
+  <a href="{% url 'matching:job_create' %}" class="btn btn-primary">
+    New matching job
+  </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    {% if jobs %}
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>Job</th>
+              <th>Left dataset</th>
+              <th>Right dataset</th>
+              <th>Status</th>
+              <th>Likely matches</th>
+              <th>Needs review</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in jobs %}
+              <tr>
+                <td>
+                  <a href="{% url 'matching:job_detail' job.pk %}">
+                    #{{ job.pk }}
+                  </a>
+                </td>
+                <td>{{ job.left_dataset.name }}</td>
+                <td>{{ job.right_dataset.name }}</td>
+                <td>{{ job.get_status_display }}</td>
+                <td>{{ job.likely_matches }}</td>
+                <td>{{ job.review_candidates }}</td>
+                <td>{{ job.created_at|date:"M j, Y H:i" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-5">
+        <h2 class="h5">No matching jobs yet</h2>
+        <p class="text-muted">
+          Create a job to compare two ready datasets.
+        </p>
+        <a href="{% url 'matching:job_create' %}" class="btn btn-primary">
+          Create matching job
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
