@@ -204,3 +204,18 @@ def dataset_process(request, import_id):
         "datasets:dataset_preview",
         import_id=dataset_import.pk,
     )
+
+@login_required
+def dataset_list(request):
+    datasets = (
+        Dataset.objects.filter(uploaded_by=request.user)
+        .prefetch_related("imports")
+        .order_by("-created_at")
+    )
+
+    context = {
+        "datasets": datasets,
+        "total_datasets": datasets.count(),
+    }
+
+    return render(request, "datasets/list.html", context)
