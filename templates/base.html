@@ -31,10 +31,12 @@
           <span>Dashboard</span>
         </a>
 
-        <div class="nav-item-link disabled-link">
-          Datasets
-          <span class="coming-soon">Phase 2</span>
-        </div>
+        <a
+            class="nav-item-link"
+            href="{% url 'datasets:dataset_list' %}"
+        >
+            <span>Datasets</span>
+        </a>
 
         <div class="nav-item-link disabled-link">
           Matching jobs
