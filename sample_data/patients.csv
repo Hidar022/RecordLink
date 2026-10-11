@@ -1,0 +1,4 @@
+first_name,last_name,date_of_birth,sex,phone,email,hospital_record_id
+Amina,Musa,1995-04-12,Female,08012345678,amina@example.com,HSP001
+Ibrahim,Bello,1988-09-20,Male,08098765432,ibrahim@example.com,HSP002
+Amina,Musa,1995-04-12,Female,08012345678,amina@example.com,HSP003

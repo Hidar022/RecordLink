@@ -35,5 +35,6 @@ urlpatterns = [
         name="logout",
     ),
 
+    path("datasets/", include("datasets.urls")),
     path("", include("core.urls")),
 ]
