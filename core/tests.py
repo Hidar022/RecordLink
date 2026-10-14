@@ -25,6 +25,57 @@ class DashboardTests(TestCase):
             response.url,
         )
 
+    def test_public_home_shows_landing_page_and_valid_navigation(self):
+        response = self.client.get(reverse("home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "core/home.html")
+        self.assertContains(response, "Discover Duplicate Records.")
+        self.assertContains(response, "Build More Reliable Data.")
+        self.assertContains(response, f'href="{reverse("login")}"')
+        self.assertContains(
+            response,
+            f'href="{reverse("login")}">Access Workspace',
+        )
+        self.assertContains(response, 'href="#features"')
+        self.assertContains(response, 'href="#how-it-works"')
+        self.assertContains(response, 'id="features"')
+        self.assertContains(response, 'id="how-it-works"')
+        self.assertContains(response, 'id="about"')
+
+    def test_authenticated_home_redirects_to_dashboard(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("home"))
+
+        self.assertRedirects(response, reverse("dashboard"))
+
+    def test_login_and_protected_dashboard_flow_remains_available(self):
+        protected_response = self.client.get(reverse("dashboard"))
+        login_response = self.client.get(reverse("login"))
+
+        self.assertRedirects(
+            protected_response,
+            f'{reverse("login")}?next={reverse("dashboard")}',
+        )
+        self.assertEqual(login_response.status_code, 200)
+        self.assertTemplateUsed(login_response, "registration/login.html")
+
+        login_response = self.client.post(
+            reverse("login"),
+            {"username": self.user.username, "password": "TestPassword_12345!"},
+        )
+
+        self.assertRedirects(login_response, reverse("dashboard"))
+        self.assertEqual(self.client.get(reverse("dashboard")).status_code, 200)
+        logout_response = self.client.post(reverse("logout"))
+
+        self.assertRedirects(logout_response, reverse("login"))
+        self.assertRedirects(
+            self.client.get(reverse("dashboard")),
+            f'{reverse("login")}?next={reverse("dashboard")}',
+        )
+
     def test_authenticated_user_can_access_dashboard(self):
         self.client.force_login(self.user)
 

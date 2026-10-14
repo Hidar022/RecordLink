@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}RecordLink | Reliable Record Linkage{% endblock %}
+
+{% block auth_content %}
+<div class="landing-page" id="top">
+  <header class="landing-header">
+    <nav class="landing-nav" aria-label="Main navigation">
+      <a class="brand landing-brand" href="{% url 'home' %}" aria-label="RecordLink home">
+        <span class="brand-mark">R</span>
+        <span>RecordLink</span>
+      </a>
+
+      <div class="landing-nav-links">
+        <a href="#top">Home</a>
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#about">About</a>
+      </div>
+
+      <a class="landing-sign-in" href="{% url 'login' %}">Sign In</a>
+
+      <details class="landing-mobile-nav">
+        <summary aria-label="Open navigation menu">
+          <span></span><span></span><span></span>
+        </summary>
+        <div class="landing-mobile-links">
+          <a href="#top">Home</a>
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#about">About</a>
+          <a href="{% url 'login' %}">Sign In</a>
+        </div>
+      </details>
+    </nav>
+  </header>
+
+  <main>
+    <section class="landing-hero" aria-labelledby="hero-title">
+      <div class="landing-hero-inner">
+        <div class="hero-copy">
+          <span class="landing-eyebrow"><span></span> PROBABILISTIC RECORD LINKAGE</span>
+          <h1 id="hero-title">Discover Duplicate Records. <em>Build More Reliable Data.</em></h1>
+          <p>
+            RecordLink helps organizations identify potentially matching records
+            across independent datasets using similarity scoring, configurable
+            thresholds, and human review.
+          </p>
+          <div class="hero-actions">
+            {% if request.user.is_authenticated %}
+              <a class="landing-button landing-button-primary" href="{% url 'dashboard' %}">Access Workspace <span aria-hidden="true">&#8599;</span></a>
+            {% else %}
+              <a class="landing-button landing-button-primary" href="{% url 'login' %}">Access Workspace <span aria-hidden="true">&#8599;</span></a>
+            {% endif %}
+            <a class="landing-button landing-button-secondary" href="#features">Explore Features <span aria-hidden="true">&#8595;</span></a>
+          </div>
+          <div class="hero-assurance">
+            <span class="assurance-icon" aria-hidden="true">&#10003;</span>
+            <span>Human decisions stay distinct from algorithmic predictions.</span>
+          </div>
+        </div>
+
+        <div class="linkage-visual" role="img" aria-label="Two independent datasets flow through candidate matching to a human review step">
+          <div class="visual-topline">
+            <span>LINKAGE WORKFLOW</span>
+            <span class="visual-live"><i></i> READY TO REVIEW</span>
+          </div>
+          <div class="visual-flow">
+            <div class="visual-sources">
+              <div class="source-sheet source-one">
+                <span class="sheet-label"><i></i> SOURCE A</span>
+                <span class="sheet-row"><b>AM-204</b><i></i></span>
+                <span class="sheet-row"><b>YSF-18</b><i></i></span>
+                <span class="sheet-row"><b>LK-091</b><i></i></span>
+              </div>
+              <div class="source-sheet source-two">
+                <span class="sheet-label"><i></i> SOURCE B</span>
+                <span class="sheet-row"><b>AMINA M.</b><i></i></span>
+                <span class="sheet-row"><b>YUSUF, A.</b><i></i></span>
+                <span class="sheet-row"><b>LEKAN A.</b><i></i></span>
+              </div>
+            </div>
+            <div class="flow-connector" aria-hidden="true"><span></span><span></span></div>
+            <div class="candidate-node">
+              <span class="node-icon" aria-hidden="true">R</span>
+              <strong>Candidate<br />matching</strong>
+              <small>Weighted field scores</small>
+            </div>
+            <div class="flow-connector flow-connector-short" aria-hidden="true"><span></span></div>
+            <div class="review-node">
+              <span class="review-check" aria-hidden="true">&#10003;</span>
+              <div><strong>Human review</strong><small>Evidence side by side</small></div>
+            </div>
+          </div>
+          <div class="visual-result">
+            <div class="result-identity"><span class="result-avatar">AY</span><span><b>Potential candidate</b><small>Two records · shared evidence</small></span></div>
+            <div class="result-score"><span>SIMILARITY</span><b>0.91</b><i><span></span></i></div>
+          </div>
+          <div class="visual-caption"><span>01</span> Illustrative workflow · scores are similarity heuristics, not probabilities</div>
+        </div>
+      </div>
+      <div class="hero-bottomline"><span>RECORDS, CONNECTED WITH CARE</span><span>DATA QUALITY / 01</span></div>
+    </section>
+
+    <section class="problem-section" id="about" aria-labelledby="problem-title">
+      <div class="section-index">01 <span>/ THE CHALLENGE</span></div>
+      <div class="problem-content">
+        <h2 id="problem-title">One person.<br /><em>More than one record.</em></h2>
+        <div class="problem-copy">
+          <p>Separate systems rarely describe the same entity in exactly the same way. A name may be spelled differently, a date may be missing, or identifiers may not travel between sources.</p>
+          <p>RecordLink compares available fields across datasets to surface candidate pairs and the evidence behind each score, so teams can make informed review decisions.</p>
+        </div>
+      </div>
+      <div class="problem-samples" aria-label="Examples of record variation">
+        <div><span>RECORD A</span><b>Amina Yusuf</b><small>1990-05-12 · ID 2041</small></div>
+        <i aria-hidden="true">&#8594;</i>
+        <div><span>RECORD B</span><b>Amina Y. Yusuf</b><small>1990-05-12 · identifier missing</small></div>
+        <div class="sample-note"><span class="sample-note-mark">?</span><span>Similar details.<br /><b>Different formats.</b></span></div>
+      </div>
+    </section>
+
+    <section class="features-section" id="features" aria-labelledby="features-title">
+      <div class="section-heading-public">
+        <div><div class="section-index">02 <span>/ WHAT YOU CAN DO</span></div><h2 id="features-title">A considered workflow<br />for <em>messy data.</em></h2></div>
+        <p>From raw CSV files to reviewed candidate pairs, each step stays visible and in your hands.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-item"><span class="feature-number">01</span><span class="feature-symbol symbol-blue" aria-hidden="true">&#8595;</span><h3>Dataset Management</h3><p>Upload CSV files, inspect their contents, map columns, and process records with validation.</p></article>
+        <article class="feature-item"><span class="feature-number">02</span><span class="feature-symbol symbol-lime" aria-hidden="true">&#8721;</span><h3>Similarity Scoring</h3><p>Compare mapped fields with weighted similarity heuristics and configurable match thresholds.</p></article>
+        <article class="feature-item"><span class="feature-number">03</span><span class="feature-symbol symbol-coral" aria-hidden="true">&#8644;</span><h3>Candidate Generation</h3><p>Use blocking to find candidate pairs, then inspect scores and field-level comparison evidence.</p></article>
+        <article class="feature-item"><span class="feature-number">04</span><span class="feature-symbol symbol-indigo" aria-hidden="true">&#9678;</span><h3>Human Review</h3><p>Confirm or reject candidate matches without changing the algorithmic classification.</p></article>
+        <article class="feature-item"><span class="feature-number">05</span><span class="feature-symbol symbol-yellow" aria-hidden="true">&#10003;</span><h3>Evaluation</h3><p>Compare predictions with independent reference labels on candidate pairs and view evaluation metrics.</p></article>
+        <article class="feature-item"><span class="feature-number">06</span><span class="feature-symbol symbol-slate" aria-hidden="true">&#9776;</span><h3>Audit History</h3><p>Review recorded workspace actions, including matching, review, label, and export events.</p></article>
+      </div>
+      <p class="feature-caveat">Evaluation describes labelled candidate pairs; it does not measure recall for pairs blocking did not generate.</p>
+    </section>
+
+    <section class="steps-section" id="how-it-works" aria-labelledby="steps-title">
+      <div class="steps-intro">
+        <div class="section-index">03 <span>/ HOW IT WORKS</span></div>
+        <h2 id="steps-title">From separate sources<br />to <em>informed decisions.</em></h2>
+        <p>Work through a clear sequence while keeping the underlying evidence accessible.</p>
+      </div>
+      <ol class="steps-list">
+        <li><span class="step-count">01</span><div><h3>Import datasets</h3><p>Upload CSV files, check the preview, map identity fields, and process records.</p></div><span class="step-arrow" aria-hidden="true">&#8599;</span></li>
+        <li><span class="step-count">02</span><div><h3>Generate and score candidates</h3><p>Create a job for two ready datasets. Blocking finds candidates; weighted comparisons assign scores and classifications.</p></div><span class="step-arrow" aria-hidden="true">&#8599;</span></li>
+        <li><span class="step-count">03</span><div><h3>Review the evidence</h3><p>Compare field-level details and record a human decision for each candidate pair.</p></div><span class="step-arrow" aria-hidden="true">&#8599;</span></li>
+        <li><span class="step-count">04</span><div><h3>Evaluate with reference labels</h3><p>Label candidate pairs independently, then inspect metrics calculated from those labels.</p></div><span class="step-arrow" aria-hidden="true">&#8599;</span></li>
+      </ol>
+    </section>
+
+    <section class="closing-section" aria-labelledby="closing-title">
+      <div class="closing-copy"><span class="landing-eyebrow"><span></span> YOUR DATA, YOUR DECISIONS</span><h2 id="closing-title">Make the connections<br />that <em>matter.</em></h2><p>RecordLink is available to authorized workspace users.</p></div>
+      <a class="landing-button closing-button" href="{% url 'login' %}">Sign in to RecordLink <span aria-hidden="true">&#8599;</span></a>
+      <span class="closing-mark" aria-hidden="true">R</span>
+    </section>
+  </main>
+
+  <footer class="landing-footer">
+    <a class="brand landing-brand" href="#top"><span class="brand-mark">R</span><span>RecordLink</span></a>
+    <div class="footer-links"><a href="#features">Features</a><a href="#how-it-works">How It Works</a><a href="#about">About</a><a href="{% url 'login' %}">Sign In</a></div>
+    <span class="copyright">&copy; {% now "Y" %} RecordLink</span>
+  </footer>
+</div>
+{% endblock %}

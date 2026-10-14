@@ -383,6 +383,47 @@ class PhaseFourWorkflowTests(TestCase):
             },
         )
 
+    def test_owner_can_open_candidate_comparison_details(self):
+        pair = self.make_pair()
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            reverse(
+                "matching:candidate_detail",
+                args=[pair.job_id, pair.pk],
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Comparison")
+        self.assertContains(response, "Amina")
+        self.assertContains(response, "Missing value; excluded from score")
+
+    def test_matching_job_form_creates_and_executes_job(self):
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse("matching:job_create"),
+            {
+                "left_dataset": self.dataset_a.pk,
+                "right_dataset": self.dataset_b.pk,
+                "match_threshold": "0.82",
+                "review_threshold": "0.55",
+            },
+        )
+
+        job = MatchingJob.objects.get(user=self.user)
+        self.assertRedirects(
+            response,
+            reverse("matching:job_detail", kwargs={"pk": job.pk}),
+        )
+        self.assertEqual(job.status, MatchingJob.Status.COMPLETED)
+        self.assertTrue(AuditEvent.objects.filter(
+            user=self.user,
+            action="matching_job_completed",
+            entity_id=str(job.pk),
+        ).exists())
+
     def test_anonymous_user_cannot_access_review_queue(self):
         response = self.client.get(reverse("matching:review_queue"))
         self.assertEqual(response.status_code, 302)

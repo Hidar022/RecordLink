@@ -53,6 +53,4 @@ def home(request):
 
         return redirect("dashboard")
 
-    from django.shortcuts import redirect
-
-    return redirect("login")
+    return render(request, "core/home.html")
